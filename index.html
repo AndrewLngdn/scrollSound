@@ -3,10 +3,6 @@
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
 	<script src="buffer-loader.js"></script>
 
-
-	<div style="background-color:grey; height:50px; overflow:auto" class="a">awef lakwjef bakwehjbf akwbf akwehbf akwehfb kawhefb akwhefb akwehbf kawhebf kahwefb akwhebf akwehfb kawhefb kawhefb kahwef awef awef awef awef awef awefawef lakwjef bakwehjbf akwbf akwehbf akwehfb kawhefb akwhefb akwehbf kawhebf kahwefb akwhebf akwehfb kawhefb kawhefb kahwef awef awef awef awef awef awefawef lakwjef bakwehjbf akwbf akwehbf akwehfb kawhefb akwhefb akwehbf kawhebf kahwefb akwhebf akwehfb kawhefb kawhefb kahwef awef awef awef awef awef awefawef lakwjef bakwehjbf akwbf akwehbf akwehfb kawhefb akwhefb akwehbf kawhebf kahwefb akwhebf akwehfb kawhefb kawhefb kahwef awef awef awef awef awef awefawef lakwjef bakwehjbf akwbf akwehbf akwehfb kawhefb akwhefb akwehbf kawhebf kahwefb akwhebf akwehfb kawhefb kawhefb kahwef awef awef awef awef awef awefawef lakwjef bakwehjbf akwbf akwehbf akwehfb kawhefb akwhefb akwehbf kawhebf kahwefb akwhebf akwehfb kawhefb kawhefb kahwef awef awef awef awef awef awef</a>
-
-
 	<script> 
 
 	gainNodes = [];
@@ -29,110 +25,93 @@
 
 		}
 
-		function loadBuffer(url) {
-		bufferLoader = new BufferLoader(
-		context,
-		[
-		url
-		],
-		finishedLoading
-		);
+		function loadBuffer(url, offset) {
+			var request = new XMLHttpRequest();
+			request.open("GET", url, true);
+			request.responseType = "arraybuffer";
 
-		bufferLoader.load();
+			request.onload = function() {
+				console.log("here");
+
+				context.decodeAudioData(
+					request.response,
+					function(buffer) {
+						if (!buffer) {
+							alert('error decoding file data: ' + url);
+							return;
+						}
+						finishedLoading(buffer, offset);
+					},
+					function(error) {
+					console.error('decodeAudioData error', error);
+					}
+				);
+			};
+
+
+			  request.onerror = function() {
+			    alert('BufferLoader: XHR error');
+			  }
+
+			  request.send();
 		}
 		
 
-		function createSource(buffer) {
+		function createSource(buffer, offset) {
 			var source = context.createBufferSource();
-			// Create a gain node.
 			var gainNode = context.createGain();
 			source.buffer = buffer;
-			// Turn on looping.
 			source.loop = true;
-			// Connect source to gain.
 			source.connect(gainNode);
-			// Connect gain to destination.
 			gainNode.connect(context.destination);
 			gainNode.gain.value = 0.0;
 
-
-			parent.scroll(function(){
-				if ($(this).scrollTop() > 500 
-					&& $(this).scrollTop() < 700
-					){
-					console.log("settingGain to 1");
-					gainNode.gain.value = 1.0;
-
-					console.log(gainNodes[0].gain.value );
-					console.log($(this).scrollTop());
-				} else {
-					gainNode.gain.value = 0.0;
-				}
-			});
+			attachScrollListener(gainNode, offset);
 
 			return {
 			source: source,
 			gainNode: gainNode
 			};
 		}
+		function attachScrollListener(gainNode, offset){
+			var offset = offset;
+			parent.scroll(function(){
+				
+				var scrollHeight = $(this).scrollTop();
+					var gain = Math.max(1 - 0.000001*Math.pow(scrollHeight-offset,2), 0);
+					gainNode.gain.value = gain;
+					console.log($(this).scrollTop());
+			});
+		}
 
-		function finishedLoading(bufferList) {
-			console.log("started loading");
-		// Create two sources and play them both together.
-			var gainNode = createSource(bufferList[0]).gainNode;
-			var source = createSource(bufferList[0]).source;
+		function finishedLoading(buffer, offset) {
+			var response = createSource(buffer, offset);
+			var gainNode = response.gainNode;
+			var source = response.source;
 			gainNodes.push(gainNode);
 			sources.push(source);
 			source.start(0);
-			// sources.push(source1);
-			// source2.start(0);
-			console.log("finsiehd loading");
-
-			// playSound(gainNode.buffer);
-			console.log(parent);
-			// parent.scroll(function(){
-				// console.log("here");
-				// gainNodes[0].gain.value = 0.0;
-
-				// if ($(this).scrollTop() > 500 
-				// 	&& $(this).scrollTop() < 700
-				// 	){
-				// 	console.log("settingGain to 1");
-				// 	gainNode.gain.value = 1.0;
-
-				// 	console.log(gainNodes[0].gain.value );
-				// 	console.log($(this).scrollTop());
-
-				// }
-			// });
 
 			return {
-			source: source,
-			gainNode: gainNode
+				source: source,
+				gainNode: gainNode
 			};
 
 		}
 
-		// function playSound(buffer) {
-		// 	var source = context.createBufferSource(); 
-		// 	source.buffer = buffer;
-		// 	source.connect(context.destination); 
-		// 	source.start(0); 
-		// }
-
-
-		$.fn.scrollSound = function(sound, height) {
+		$.fn.scrollSound = function(url, height) {
 			parent = this;
 			$(window).on('contextLoaded', function(){
-				loadBuffer(sound);
+				console.log(height);
+				loadBuffer(url, height);
 
 			})
 			return this;
 		}
 	})(jQuery);
 		
-		$(document).scrollSound("pptwaves.mp3");
-		// $(".a").scrollSound();
+		$(document).scrollSound("pptwaves.mp3", 500);
+		$(document).scrollSound("forest.mp3", 1500);
 	</script>
 	
 </body>
