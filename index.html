@@ -14,6 +14,7 @@
 
 	(function($){
 		window.onload = init;
+		initialized = false;
 		var context;
 		var bufferLoader;
 		// var sources = [];
@@ -24,15 +25,15 @@
 		// Fix up prefixing
 		window.AudioContext = window.AudioContext || window.webkitAudioContext;
 		context = new AudioContext();
-		loadBuffer();
+		$(window).trigger("contextLoaded");
 
 		}
 
-		function loadBuffer() {
+		function loadBuffer(url) {
 		bufferLoader = new BufferLoader(
 		context,
 		[
-		'./pptwaves.mp3'
+		url
 		],
 		finishedLoading
 		);
@@ -122,12 +123,15 @@
 
 		$.fn.scrollSound = function(sound, height) {
 			parent = this;
+			$(window).on('contextLoaded', function(){
+				loadBuffer(sound);
 
+			})
 			return this;
 		}
 	})(jQuery);
 		
-		$(document).scrollSound();
+		$(document).scrollSound("pptwaves.mp3");
 		// $(".a").scrollSound();
 	</script>
 	
