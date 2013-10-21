@@ -1,0 +1,63 @@
+<html>
+<body style="height:4000px">
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+	<script src="buffer-loader.js"></script>
+
+
+	<div style="background-color:grey; height:50px; overflow:auto" class="a">awef lakwjef bakwehjbf akwbf akwehbf akwehfb kawhefb akwhefb akwehbf kawhebf kahwefb akwhebf akwehfb kawhefb kawhefb kahwef awef awef awef awef awef awefawef lakwjef bakwehjbf akwbf akwehbf akwehfb kawhefb akwhefb akwehbf kawhebf kahwefb akwhebf akwehfb kawhefb kawhefb kahwef awef awef awef awef awef awefawef lakwjef bakwehjbf akwbf akwehbf akwehfb kawhefb akwhefb akwehbf kawhebf kahwefb akwhebf akwehfb kawhefb kawhefb kahwef awef awef awef awef awef awefawef lakwjef bakwehjbf akwbf akwehbf akwehfb kawhefb akwhefb akwehbf kawhebf kahwefb akwhebf akwehfb kawhefb kawhefb kahwef awef awef awef awef awef awefawef lakwjef bakwehjbf akwbf akwehbf akwehfb kawhefb akwhefb akwehbf kawhebf kahwefb akwhebf akwehfb kawhefb kawhefb kahwef awef awef awef awef awef awefawef lakwjef bakwehjbf akwbf akwehbf akwehfb kawhefb akwhefb akwehbf kawhebf kahwefb akwhebf akwehfb kawhefb kawhefb kahwef awef awef awef awef awef awef  </a>
+
+
+	<script> 
+
+	(function($){
+		window.onload = init;
+		var context;
+		var bufferLoader;
+
+		function init() {
+		  // Fix up prefixing
+		  window.AudioContext = window.AudioContext || window.webkitAudioContext;
+		  context = new AudioContext();
+
+		  bufferLoader = new BufferLoader(
+		    context,
+		    [
+		      './can_pop.wav',
+		      './door_creak.wav',
+		    ],
+		    finishedLoading
+		    );
+
+		  bufferLoader.load();
+		}
+
+		function finishedLoading(bufferList) {
+		  // Create two sources and play them both together.
+		  var source1 = context.createBufferSource();
+		  var source2 = context.createBufferSource();
+		  source1.buffer = bufferList[0];
+		  source2.buffer = bufferList[1];
+
+		  source1.connect(context.destination);
+		  source2.connect(context.destination);
+		  source1.start(0);
+		  source2.start(0);
+		}
+
+
+		$.fn.scrollSound = function(sound, height) {
+			this.scroll(function(){
+				console.log($(this).scrollTop());
+			});
+
+			return this;
+		}
+	})(jQuery);
+		
+		$(document).scrollSound();
+		$(".a").scrollSound();
+	</script>
+	
+</body>
+</html>
+
