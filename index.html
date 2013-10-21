@@ -4,58 +4,131 @@
 	<script src="buffer-loader.js"></script>
 
 
-	<div style="background-color:grey; height:50px; overflow:auto" class="a">awef lakwjef bakwehjbf akwbf akwehbf akwehfb kawhefb akwhefb akwehbf kawhebf kahwefb akwhebf akwehfb kawhefb kawhefb kahwef awef awef awef awef awef awefawef lakwjef bakwehjbf akwbf akwehbf akwehfb kawhefb akwhefb akwehbf kawhebf kahwefb akwhebf akwehfb kawhefb kawhefb kahwef awef awef awef awef awef awefawef lakwjef bakwehjbf akwbf akwehbf akwehfb kawhefb akwhefb akwehbf kawhebf kahwefb akwhebf akwehfb kawhefb kawhefb kahwef awef awef awef awef awef awefawef lakwjef bakwehjbf akwbf akwehbf akwehfb kawhefb akwhefb akwehbf kawhebf kahwefb akwhebf akwehfb kawhefb kawhefb kahwef awef awef awef awef awef awefawef lakwjef bakwehjbf akwbf akwehbf akwehfb kawhefb akwhefb akwehbf kawhebf kahwefb akwhebf akwehfb kawhefb kawhefb kahwef awef awef awef awef awef awefawef lakwjef bakwehjbf akwbf akwehbf akwehfb kawhefb akwhefb akwehbf kawhebf kahwefb akwhebf akwehfb kawhefb kawhefb kahwef awef awef awef awef awef awef  </a>
+	<div style="background-color:grey; height:50px; overflow:auto" class="a">awef lakwjef bakwehjbf akwbf akwehbf akwehfb kawhefb akwhefb akwehbf kawhebf kahwefb akwhebf akwehfb kawhefb kawhefb kahwef awef awef awef awef awef awefawef lakwjef bakwehjbf akwbf akwehbf akwehfb kawhefb akwhefb akwehbf kawhebf kahwefb akwhebf akwehfb kawhefb kawhefb kahwef awef awef awef awef awef awefawef lakwjef bakwehjbf akwbf akwehbf akwehfb kawhefb akwhefb akwehbf kawhebf kahwefb akwhebf akwehfb kawhefb kawhefb kahwef awef awef awef awef awef awefawef lakwjef bakwehjbf akwbf akwehbf akwehfb kawhefb akwhefb akwehbf kawhebf kahwefb akwhebf akwehfb kawhefb kawhefb kahwef awef awef awef awef awef awefawef lakwjef bakwehjbf akwbf akwehbf akwehfb kawhefb akwhefb akwehbf kawhebf kahwefb akwhebf akwehfb kawhefb kawhefb kahwef awef awef awef awef awef awefawef lakwjef bakwehjbf akwbf akwehbf akwehfb kawhefb akwhefb akwehbf kawhebf kahwefb akwhebf akwehfb kawhefb kawhefb kahwef awef awef awef awef awef awef</a>
 
 
 	<script> 
+
+	gainNodes = [];
+	sources = [];
 
 	(function($){
 		window.onload = init;
 		var context;
 		var bufferLoader;
+		// var sources = [];
+		// var gainNodes = [];
+		var parent;
 
 		function init() {
-		  // Fix up prefixing
-		  window.AudioContext = window.AudioContext || window.webkitAudioContext;
-		  context = new AudioContext();
+		// Fix up prefixing
+		window.AudioContext = window.AudioContext || window.webkitAudioContext;
+		context = new AudioContext();
+		loadBuffer();
 
-		  bufferLoader = new BufferLoader(
-		    context,
-		    [
-		      './can_pop.wav',
-		      './door_creak.wav',
-		    ],
-		    finishedLoading
-		    );
+		}
 
-		  bufferLoader.load();
+		function loadBuffer() {
+		bufferLoader = new BufferLoader(
+		context,
+		[
+		'./pptwaves.mp3'
+		],
+		finishedLoading
+		);
+
+		bufferLoader.load();
+		}
+		
+
+		function createSource(buffer) {
+			var source = context.createBufferSource();
+			// Create a gain node.
+			var gainNode = context.createGain();
+			source.buffer = buffer;
+			// Turn on looping.
+			source.loop = true;
+			// Connect source to gain.
+			source.connect(gainNode);
+			// Connect gain to destination.
+			gainNode.connect(context.destination);
+			gainNode.gain.value = 0.0;
+
+
+			parent.scroll(function(){
+				if ($(this).scrollTop() > 500 
+					&& $(this).scrollTop() < 700
+					){
+					console.log("settingGain to 1");
+					gainNode.gain.value = 1.0;
+
+					console.log(gainNodes[0].gain.value );
+					console.log($(this).scrollTop());
+				} else {
+					gainNode.gain.value = 0.0;
+				}
+			});
+
+			return {
+			source: source,
+			gainNode: gainNode
+			};
 		}
 
 		function finishedLoading(bufferList) {
-		  // Create two sources and play them both together.
-		  var source1 = context.createBufferSource();
-		  var source2 = context.createBufferSource();
-		  source1.buffer = bufferList[0];
-		  source2.buffer = bufferList[1];
+			console.log("started loading");
+		// Create two sources and play them both together.
+			var gainNode = createSource(bufferList[0]).gainNode;
+			var source = createSource(bufferList[0]).source;
+			gainNodes.push(gainNode);
+			sources.push(source);
+			source.start(0);
+			// sources.push(source1);
+			// source2.start(0);
+			console.log("finsiehd loading");
 
-		  source1.connect(context.destination);
-		  source2.connect(context.destination);
-		  source1.start(0);
-		  source2.start(0);
+			// playSound(gainNode.buffer);
+			console.log(parent);
+			// parent.scroll(function(){
+				// console.log("here");
+				// gainNodes[0].gain.value = 0.0;
+
+				// if ($(this).scrollTop() > 500 
+				// 	&& $(this).scrollTop() < 700
+				// 	){
+				// 	console.log("settingGain to 1");
+				// 	gainNode.gain.value = 1.0;
+
+				// 	console.log(gainNodes[0].gain.value );
+				// 	console.log($(this).scrollTop());
+
+				// }
+			// });
+
+			return {
+			source: source,
+			gainNode: gainNode
+			};
+
 		}
+
+		// function playSound(buffer) {
+		// 	var source = context.createBufferSource(); 
+		// 	source.buffer = buffer;
+		// 	source.connect(context.destination); 
+		// 	source.start(0); 
+		// }
 
 
 		$.fn.scrollSound = function(sound, height) {
-			this.scroll(function(){
-				console.log($(this).scrollTop());
-			});
+			parent = this;
 
 			return this;
 		}
 	})(jQuery);
 		
 		$(document).scrollSound();
-		$(".a").scrollSound();
+		// $(".a").scrollSound();
 	</script>
 	
 </body>
