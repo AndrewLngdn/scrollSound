@@ -32,6 +32,7 @@ body {
 }
 </style>
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+	<script src="scrollSound.js"></script>
 
 	 <div class="center">
 	 	<canvas width="400" height="30"></canvas>
@@ -39,31 +40,24 @@ body {
 
 	<script> 
 
-	// gainNodes = [];
-	// sources = [];
-
 	(function($){
 		window.onload = init;
-		initialized = false;
 		var context;
-		var bufferLoader;
 		var sources = [];
 		var gainNodes = [];
-		var parent;
-		var myAudioAnalyser;
-			 var count = 0;
+		var scrollSoundInstance;
+		var audioAnalyser;
+		var count = 0;
 
 
 		function init() {
-		// Fix up prefixing
 			window.AudioContext = window.AudioContext || window.webkitAudioContext;
 			context = new AudioContext();
-			myAudioAnalyser = context.createAnalyser();
-			myAudioAnalyser.smoothingTimeConstant = 0.9;
-			myAudioAnalyser.connect(context.destination);
+			audioAnalyser = context.createAnalyser();
+			audioAnalyser.smoothingTimeConstant = 0.9;
+			audioAnalyser.connect(context.destination);
 			mySpectrum = setInterval(drawSpectrum, 15);
-			$(window).trigger("contextLoaded");
-
+			$(window).trigger("scrollHeightContextLoaded");
 		}
 
 		function loadBuffer(url, offset) {
@@ -83,17 +77,17 @@ body {
 						finishedLoading(buffer, offset);
 					},
 					function(error) {
-					console.error('decodeAudioData error', error);
+						console.error('decodeAudioData error', error);
 					}
 				);
 			};
 
 
-			  request.onerror = function() {
-			alert('BufferLoader: XHR error');
-			  }
+			request.onerror = function() {
+				alert('BufferLoader: XHR error');
+			}
 
-			  request.send();
+			request.send();
 		}
 		
 
@@ -103,19 +97,19 @@ body {
 			source.buffer = buffer;
 			source.loop = true;
 			source.connect(gainNode);
-			gainNode.connect(myAudioAnalyser);
+			gainNode.connect(audioAnalyser);
 			gainNode.gain.value = 0.0;
 
 			attachScrollListener(gainNode, offset);
 
 			return {
-			source: source,
-			gainNode: gainNode
+				source: source,
+				gainNode: gainNode
 			};
 		}
 		function attachScrollListener(gainNode, offset){
 			var offset = offset;
-			parent.scroll(function(){
+			scrollSoundInstance.scroll(function(){
 
 				var scrollHeight = $(this).scrollTop();
 					var gain = Math.max(1 - 0.0000005*Math.pow(scrollHeight-offset,2), 0);
@@ -146,8 +140,8 @@ body {
 			 
 			ctx.clearRect(0, 0, width, height);
 			 
-			var freqByteData = new Uint8Array(myAudioAnalyser.frequencyBinCount);
-			myAudioAnalyser.getByteFrequencyData(freqByteData);
+			var freqByteData = new Uint8Array(audioAnalyser.frequencyBinCount);
+			audioAnalyser.getByteFrequencyData(freqByteData);
 			var barCount = Math.round(width / bar_width);
 			for (var i = 0; i < barCount; i++) {
 				var magnitude = freqByteData[i];
@@ -178,8 +172,8 @@ body {
 		}
 
 		$.fn.scrollSound = function(url, height) {
-			parent = this;
-			$(window).on('contextLoaded', function(){
+			scrollSoundInstance = this;
+			$(window).on('scrollHeightContextLoaded', function(){
 				loadBuffer(url, height);
 
 			})
