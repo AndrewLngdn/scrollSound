@@ -1,5 +1,5 @@
 	(function($){
-		window.onload = init;
+		// window.onload = init;
 		var context;
 		var sources = [];
 		var gainNodes = [];
@@ -66,8 +66,12 @@
 			scrollSoundInstance.scroll(function(){
 
 				var scrollHeight = $(this).scrollTop();
-					var gain = Math.max(1 - 0.0000005*Math.pow(scrollHeight-offset,2), 0);
-					gainNode.gain.value = gain;
+				// var gainFunction = Math.pow(2,-0.000001*(scrollHeight-offset^2));
+				var gainFunction = Math.min(Math.pow(2,-0.000007*(Math.pow(scrollHeight-offset,2))), 1);
+
+				// var gain = Math.max(1 - 0.0000005*Math.pow(scrollHeight-offset,2), 0);
+				// gainNode.gain.value = gain;
+				gainNode.gain.value = gainFunction;
 			});
 		}
 
@@ -86,6 +90,11 @@
 		}
 
 		$.fn.scrollSound = function(url, height) {
+			if (context != undefined){
+				init(context);
+			} else {
+				init();
+			}
 			scrollSoundInstance = this;
 			$(window).on('scrollHeightContextLoaded', function(){
 				loadBuffer(url, height);
