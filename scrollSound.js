@@ -8,9 +8,14 @@
 		var count = 0;
 
 
-		function init() {
-			window.AudioContext = window.AudioContext || window.webkitAudioContext;
-			context = new AudioContext();
+		function init(context) {
+			if (context === undefined){
+				window.AudioContext = window.AudioContext || window.webkitAudioContext;
+				context = new AudioContext();
+			} else {
+				context = context;
+			}
+
 			$(window).trigger("scrollHeightContextLoaded");
 		}
 
@@ -35,7 +40,6 @@
 					}
 				);
 			};
-
 
 			request.onerror = function() {
 				alert('BufferLoader: XHR error');
@@ -66,11 +70,8 @@
 			scrollSoundInstance.scroll(function(){
 
 				var scrollHeight = $(this).scrollTop();
-				// var gainFunction = Math.pow(2,-0.000001*(scrollHeight-offset^2));
 				var gainFunction = Math.min(Math.pow(2,-0.000007*(Math.pow(scrollHeight-offset,2))), 1);
 
-				// var gain = Math.max(1 - 0.0000005*Math.pow(scrollHeight-offset,2), 0);
-				// gainNode.gain.value = gain;
 				gainNode.gain.value = gainFunction;
 			});
 		}
@@ -89,7 +90,7 @@
 			};
 		}
 
-		$.fn.scrollSound = function(url, height) {
+		$.fn.scrollSound = function(url, height, context) {
 			if (context != undefined){
 				init(context);
 			} else {
