@@ -1,5 +1,4 @@
 	(function($){
-		// window.onload = init;
 		var context;
 		var sources = [];
 		var gainNodes = [];
@@ -8,12 +7,13 @@
 		var count = 0;
 
 
-		function init(context) {
-			if (context === undefined){
+		function init(cont) {
+			if (cont != undefined){
+				context = cont;
+			} else if (context == undefined) {
+				console.log("here");
 				window.AudioContext = window.AudioContext || window.webkitAudioContext;
 				context = new AudioContext();
-			} else {
-				context = context;
 			}
 
 			$(window).trigger("scrollHeightContextLoaded");
