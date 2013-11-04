@@ -30,7 +30,7 @@ Raising x to a higher, even power will result in a steeper cutoff.
 Uses:
 
 1. Artistic web pages, like tall works of art, or audio/visual scultures
-2. Annoying your users like it's the 90s
+2. Annoying your users like the MIDI days
 
 
 
