@@ -1,7 +1,6 @@
 scrollSound
 ===========
-
-Add audio to specific y-locations on your page. 
+A jQuery plugin for adding audio to specific y-locations on your page.
 
 Demo:
 http://andrewlngdn.herokuapp.com/scroll_sound
@@ -30,7 +29,8 @@ Raising x to a higher, even power will result in a steeper cutoff.
 Uses:
 
 1. Artistic web pages, like tall works of art, or audio/visual scultures
-2. Annoying your users like the MIDI days
+2. Tall pages that need sound for some reason 
+3. Annoying your users like the MIDI days
 
 
 
